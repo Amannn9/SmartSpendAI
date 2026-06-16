@@ -1,46 +1,23 @@
-import streamlit as st
-import sqlite3
 import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
 
-from ml.expense_predictor import predict_next_expense
 
-DB_NAME = "data/expenses.db"
+def predict_next_expense(expenses_df):
 
-st.title("🤖 AI Expense Prediction")
+    if len(expenses_df) < 3:
+        return None
 
-conn = sqlite3.connect(DB_NAME)
+    X = np.arange(len(expenses_df)).reshape(-1, 1)
 
-expenses_df = pd.read_sql_query(
-    "SELECT * FROM expenses",
-    conn
-)
+    y = expenses_df["amount"]
 
-conn.close()
+    model = LinearRegression()
 
-prediction = predict_next_expense(
-    expenses_df
-)
+    model.fit(X, y)
 
-if prediction is None:
+    next_period = np.array([[len(expenses_df)]])
 
-    st.warning(
-        "Add expense records from at least 3 different months for prediction."
-    )
+    prediction = model.predict(next_period)[0]
 
-else:
-
-    st.metric(
-        "Predicted Next Month Expense",
-        f"₹{prediction:,.2f}"
-    )
-
-    st.success(
-        "Prediction generated using Linear Regression."
-    )
-
-    st.subheader("Historical Expense Data")
-
-    st.dataframe(
-        expenses_df,
-        use_container_width=True
-    )
+    return prediction
