@@ -96,7 +96,7 @@ if st.button("Generate PDF Report"):
 
         st.download_button(
             label="📄 Download PDF Report",
-            data=file,
+            data=pdf_bytes,
             file_name="SmartSpend_Report.pdf",
             mime="application/pdf"
         )
