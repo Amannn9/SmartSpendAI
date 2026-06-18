@@ -10,14 +10,21 @@ except Exception as e:
 import sqlite3
 import pandas as pd
 
-from utils.database import create_database
+from utils.database import (
+    create_database,
+    get_db_name
+)
 
-DB_NAME = "data/expenses.db"
+# Create user-specific database
+create_database()
+
+DB_NAME = get_db_name()
 
 st.title("📊 Dashboard")
 
-# Create database if not exists
-create_database()
+# Temporary Debug
+st.write("User:", st.session_state.get("user_code"))
+st.write("Database:", DB_NAME)
 
 # Database Connection
 conn = sqlite3.connect(DB_NAME)
@@ -27,8 +34,7 @@ try:
         "SELECT * FROM expenses",
         conn
     )
-except Exception as e:
-    st.error(f"Error loading expenses: {e}")
+except Exception:
     expenses_df = pd.DataFrame()
 
 try:
@@ -36,8 +42,7 @@ try:
         "SELECT * FROM monthly_budget",
         conn
     )
-except Exception as e:
-    st.error(f"Error loading budget: {e}")
+except Exception:
     budget_df = pd.DataFrame()
 
 conn.close()
@@ -65,13 +70,28 @@ savings_goal = (
 
 col1, col2, col3, col4 = st.columns(4)
 
-col1.metric("💰 Income", f"₹{income:,.0f}")
-col2.metric("💸 Expenses", f"₹{total_expense:,.0f}")
-col3.metric("🏦 Savings", f"₹{savings:,.0f}")
-col4.metric("🎯 Savings Goal", f"₹{savings_goal:,.0f}")
+col1.metric(
+    "💰 Income",
+    f"₹{income:,.0f}"
+)
+
+col2.metric(
+    "💸 Expenses",
+    f"₹{total_expense:,.0f}"
+)
+
+col3.metric(
+    "🏦 Savings",
+    f"₹{savings:,.0f}"
+)
+
+col4.metric(
+    "🎯 Savings Goal",
+    f"₹{savings_goal:,.0f}"
+)
 
 # ----------------------------------------------------
-# Expense Distribution Pie Chart
+# Expense Distribution
 # ----------------------------------------------------
 
 st.divider()
@@ -100,7 +120,10 @@ if not expenses_df.empty:
     )
 
 else:
-    st.info("Add expenses to view analytics.")
+
+    st.info(
+        "Add expenses to view analytics."
+    )
 
 # ----------------------------------------------------
 # Category Wise Spending
@@ -187,7 +210,10 @@ if not budget_df.empty:
 
     compare_df = pd.DataFrame({
         "Type": ["Income", "Expenses"],
-        "Amount": [latest_income, total_expense]
+        "Amount": [
+            latest_income,
+            total_expense
+        ]
     })
 
     compare_fig = px.bar(
@@ -204,4 +230,7 @@ if not budget_df.empty:
     )
 
 else:
-    st.info("Set a budget to compare income and expenses.")
+
+    st.info(
+        "Set a budget to compare income and expenses."
+    )
