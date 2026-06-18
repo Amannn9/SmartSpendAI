@@ -2,7 +2,14 @@ import streamlit as st
 import sqlite3
 from datetime import date
 
-DB_NAME = "data/expenses.db"
+from utils.database import (
+    create_database,
+    get_db_name
+)
+
+create_database()
+
+DB_NAME = get_db_name()
 
 st.title("➕ Add Expense")
 

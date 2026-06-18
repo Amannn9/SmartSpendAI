@@ -2,7 +2,14 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 
-DB_NAME = "data/expenses.db"
+from utils.database import (
+    create_database,
+    get_db_name
+)
+
+create_database()
+
+DB_NAME = get_db_name()
 
 st.title("✏️ Edit Expense")
 
@@ -24,7 +31,9 @@ expense_id = st.selectbox(
     df["id"].tolist()
 )
 
-selected = df[df["id"] == expense_id].iloc[0]
+selected = df[
+    df["id"] == expense_id
+].iloc[0]
 
 amount = st.number_input(
     "Amount",
@@ -38,7 +47,7 @@ category = st.text_input(
 
 description = st.text_input(
     "Description",
-    value=selected["description"]
+    value=str(selected["description"])
 )
 
 expense_date = st.text_input(
@@ -49,6 +58,7 @@ expense_date = st.text_input(
 if st.button("Update Expense"):
 
     conn = sqlite3.connect(DB_NAME)
+
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -70,4 +80,8 @@ if st.button("Update Expense"):
     conn.commit()
     conn.close()
 
-    st.success("Expense updated successfully ✅")
+    st.success(
+        "Expense updated successfully ✅"
+    )
+
+    st.rerun()

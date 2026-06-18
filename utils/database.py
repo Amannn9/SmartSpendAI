@@ -1,12 +1,31 @@
 import sqlite3
+import streamlit as st
+import os
 
-DB_NAME = "data/expenses.db"
+
+def get_db_name():
+
+    user_code = st.session_state.get(
+        "user_code",
+        "guest"
+    )
+
+    return f"data/{user_code}.db"
+
 
 def create_database():
-    conn = sqlite3.connect(DB_NAME)
+
+    os.makedirs(
+        "data",
+        exist_ok=True
+    )
+
+    db_name = get_db_name()
+
+    conn = sqlite3.connect(db_name)
+
     cursor = conn.cursor()
 
-    # Expenses table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS expenses(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,7 +36,6 @@ def create_database():
     )
     """)
 
-    # Budget table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS monthly_budget(
         id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -1,10 +1,19 @@
 import streamlit as st
 import sqlite3
 import pandas as pd
-from utils.pdf_generator import generate_pdf
 
+from utils.database import (
+    create_database,
+    get_db_name
+)
 
-DB_NAME = "data/expenses.db"
+from utils.pdf_generator import (
+    generate_pdf
+)
+
+create_database()
+
+DB_NAME = get_db_name()
 
 st.title("📥 Export Reports")
 
@@ -44,12 +53,16 @@ savings = income - total_expenses
 
 st.subheader("Expense Records")
 
-st.dataframe(
-    expenses_df,
-    use_container_width=True
-)
+if expenses_df.empty:
 
-# Export Expenses CSV
+    st.info("No expenses available.")
+
+else:
+
+    st.dataframe(
+        expenses_df,
+        use_container_width=True
+    )
 
 expense_csv = expenses_df.to_csv(
     index=False
@@ -62,8 +75,6 @@ st.download_button(
     mime="text/csv"
 )
 
-# Export Budget CSV
-
 budget_csv = budget_df.to_csv(
     index=False
 )
@@ -74,8 +85,6 @@ st.download_button(
     file_name="budget_report.csv",
     mime="text/csv"
 )
-
-
 
 if st.button("Generate PDF Report"):
 
@@ -91,12 +100,12 @@ if st.button("Generate PDF Report"):
         "SmartSpend_Report.pdf",
         "rb"
     ) as file:
-        
+
         pdf_bytes = file.read()
 
-        st.download_button(
-            label="📄 Download PDF Report",
-            data=pdf_bytes,
-            file_name="SmartSpend_Report.pdf",
-            mime="application/pdf"
-        )
+    st.download_button(
+        label="📄 Download PDF Report",
+        data=pdf_bytes,
+        file_name="SmartSpend_Report.pdf",
+        mime="application/pdf"
+    )

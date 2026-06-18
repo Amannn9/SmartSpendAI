@@ -2,7 +2,14 @@ import streamlit as st
 import sqlite3
 import pandas as pd
 
-DB_NAME = "data/expenses.db"
+from utils.database import (
+    create_database,
+    get_db_name
+)
+
+create_database()
+
+DB_NAME = get_db_name()
 
 st.title("📋 Expense History")
 
@@ -19,7 +26,10 @@ if df.empty:
     st.warning("No expenses found.")
     st.stop()
 
-st.dataframe(df, use_container_width=True)
+st.dataframe(
+    df,
+    use_container_width=True
+)
 
 st.divider()
 
@@ -43,5 +53,8 @@ if st.button("Delete Expense"):
     conn.commit()
     conn.close()
 
-    st.success("Expense deleted successfully ✅")
+    st.success(
+        "Expense deleted successfully ✅"
+    )
+
     st.rerun()

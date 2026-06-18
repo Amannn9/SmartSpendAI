@@ -3,7 +3,14 @@ import sqlite3
 import pandas as pd
 from datetime import datetime
 
-DB_NAME = "data/expenses.db"
+from utils.database import (
+    create_database,
+    get_db_name
+)
+
+create_database()
+
+DB_NAME = get_db_name()
 
 st.title("💵 Monthly Budget")
 
@@ -27,6 +34,7 @@ month = st.text_input(
 if st.button("Save Budget"):
 
     conn = sqlite3.connect(DB_NAME)
+
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -43,8 +51,9 @@ if st.button("Save Budget"):
     conn.commit()
     conn.close()
 
-    st.success("Budget Saved Successfully ✅")
-
+    st.success(
+        "Budget Saved Successfully ✅"
+    )
 
 st.divider()
 
@@ -63,7 +72,13 @@ budget_df = pd.read_sql_query(
 
 conn.close()
 
-st.dataframe(
-    budget_df,
-    use_container_width=True
-)
+if budget_df.empty:
+
+    st.info("No budgets saved yet.")
+
+else:
+
+    st.dataframe(
+        budget_df,
+        use_container_width=True
+    )
